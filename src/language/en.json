@@ -1,0 +1,44 @@
+{
+    "language": {
+        "isocode": "en-GB",
+        "friendlyname": "English Great Britain",
+        "langID": 0,
+        "routes": [
+            {
+                "url": "/",
+                "title": "Introduction",
+                "pageID": 0,
+                "section": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Start", "ImageURL": "" },
+                    { "key": "s1_p1", "Text": "Welcome to the course!", "ImageURL": "" },
+                    { "key": "s1_b1", "Text": "Start Section 1", "ImageURL": "" }
+                ]
+            },
+            {
+                "url": "/section1",
+                "title": "Section 1",
+                "pageID": 1,
+                "section": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Section 1", "ImageURL": "" },
+                    { "key": "s1_p1", "Text": "This is section 1. Click a button below.", "ImageURL": "" },
+                    { "key": "s1_b1", "Text": "Visit Summary", "ImageURL": "" },
+                    { "key": "s1_b2", "Text": "Return to Start", "ImageURL": "" }
+                ]
+            },
+            {
+                "url": "/summary",
+                "title": "Summary",
+                "pageID": 2,
+                "section": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Well Done!", "ImageURL": "" },
+                    { "key": "s1_p1", "Text": "You have completed the course.", "ImageURL": "" },
+                    { "key": "s1_b1", "Text": "Return to Section 1", "ImageURL": "" },
+                    { "key": "s1_b2", "Text": "Return to Start", "ImageURL": "" }
+                ]
+            }
+        ]
+    }
+}

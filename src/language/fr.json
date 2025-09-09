@@ -1,0 +1,44 @@
+{
+    "language": {
+        "isocode": "fr-FR",
+        "friendlyname": "Français (France)",
+        "langID": 1,
+        "routes": [
+            {
+                "url": "/",
+                "title": "Introduction",
+                "pageID": 0,
+                "section": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Commencer", "ImageURL": "" },
+                    { "key": "s1_p1", "Text": "Bienvenue dans le cours !", "ImageURL": "" },
+                    { "key": "s1_b1", "Text": "Commencer la section 1", "ImageURL": "" }
+                ]
+            },
+            {
+                "url": "/section1",
+                "title": "Section 1",
+                "pageID": 1,
+                "section": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Section 1", "ImageURL": "" },
+                    { "key": "s1_p1", "Text": "Ceci est la section 1. Cliquez sur un bouton ci-dessous.", "ImageURL": "" },
+                    { "key": "s1_b1", "Text": "Aller au résumé", "ImageURL": "" },
+                    { "key": "s1_b2", "Text": "Retour au début", "ImageURL": "" }
+                ]
+            },
+            {
+                "url": "/summary",
+                "title": "Résumé",
+                "pageID": 2,
+                "section": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Bravo !", "ImageURL": "" },
+                    { "key": "s1_p1", "Text": "Vous avez terminé le cours.", "ImageURL": "" },
+                    { "key": "s1_b1", "Text": "Retour à la section 1", "ImageURL": "" },
+                    { "key": "s1_b2", "Text": "Retour au début", "ImageURL": "" }
+                ]
+            }
+        ]
+    }
+}
