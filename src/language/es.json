@@ -1,42 +1,45 @@
 {
     "language": {
         "isocode": "es-ES",
-        "friendlyname": "Español (España)",
+        "friendlyname": "Español España",
         "langID": 2,
+        "ui": [
+            { "key": "lang_selector_label", "Text": "Idioma" },
+            { "key": "lang_en", "Text": "Inglés" },
+            { "key": "lang_fr", "Text": "Francés" },
+            { "key": "lang_es", "Text": "Español" }
+        ],
         "routes": [
             {
                 "url": "/",
                 "title": "Introducción",
                 "pageID": 0,
-                "section": 0,
                 "fields": [
-                    { "key": "s1_h1", "Text": "Comenzar", "ImageURL": "" },
-                    { "key": "s1_p1", "Text": "¡Bienvenido al curso!", "ImageURL": "" },
-                    { "key": "s1_b1", "Text": "Comenzar la Sección 1", "ImageURL": "" }
+                    { "key": "s1_h1", "Text": "Comenzar" },
+                    { "key": "s1_p1", "Text": "¡Bienvenido al curso!" },
+                    { "key": "s1_b1", "Text": "Iniciar la sección 1" }
                 ]
             },
             {
                 "url": "/section1",
                 "title": "Sección 1",
                 "pageID": 1,
-                "section": 0,
                 "fields": [
-                    { "key": "s1_h1", "Text": "Sección 1", "ImageURL": "" },
-                    { "key": "s1_p1", "Text": "Esta es la sección 1. Haga clic en un botón abajo.", "ImageURL": "" },
-                    { "key": "s1_b1", "Text": "Ir al resumen", "ImageURL": "" },
-                    { "key": "s1_b2", "Text": "Volver al inicio", "ImageURL": "" }
+                    { "key": "s1_h1", "Text": "Sección 1" },
+                    { "key": "s1_p1", "Text": "Esta es la sección 1. Haz clic en un botón abajo." },
+                    { "key": "s1_b1", "Text": "Ver resumen" },
+                    { "key": "s1_b2", "Text": "Volver al inicio" }
                 ]
             },
             {
                 "url": "/summary",
                 "title": "Resumen",
                 "pageID": 2,
-                "section": 0,
                 "fields": [
-                    { "key": "s1_h1", "Text": "¡Bien hecho!", "ImageURL": "" },
-                    { "key": "s1_p1", "Text": "Has completado el curso.", "ImageURL": "" },
-                    { "key": "s1_b1", "Text": "Volver a la sección 1", "ImageURL": "" },
-                    { "key": "s1_b2", "Text": "Volver al inicio", "ImageURL": "" }
+                    { "key": "s1_h1", "Text": "¡Bien hecho!" },
+                    { "key": "s1_p1", "Text": "Has completado el curso." },
+                    { "key": "s1_b1", "Text": "Volver a la sección 1" },
+                    { "key": "s1_b2", "Text": "Volver al inicio" }
                 ]
             }
         ]

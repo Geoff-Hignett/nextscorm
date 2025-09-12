@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import LangSelector from "@/components/LangSelector";
 
 const poppins = Poppins({
     variable: "--font-poppins",
@@ -20,7 +21,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${poppins.variable} font-sans antialiased`}>{children}</body>
+            <body className={`${poppins.variable} font-sans antialiased`}>
+                <header className="flex justify-end p-4 border-b">
+                    <LangSelector />
+                </header>
+
+                <main>{children}</main>
+            </body>
         </html>
     );
 }
