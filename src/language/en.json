@@ -5,9 +5,9 @@
         "langID": 0,
         "ui": [
             { "key": "lang_selector_label", "Text": "Language" },
-            { "key": "lang_en", "Text": "English" },
-            { "key": "lang_fr", "Text": "French" },
-            { "key": "lang_es", "Text": "Spanish" }
+            { "key": "lang_1", "Text": "English" },
+            { "key": "lang_2", "Text": "French" },
+            { "key": "lang_3", "Text": "Spanish" }
         ],
         "routes": [
             {

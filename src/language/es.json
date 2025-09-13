@@ -5,9 +5,9 @@
         "langID": 2,
         "ui": [
             { "key": "lang_selector_label", "Text": "Idioma" },
-            { "key": "lang_en", "Text": "Inglés" },
-            { "key": "lang_fr", "Text": "Francés" },
-            { "key": "lang_es", "Text": "Español" }
+            { "key": "lang_1", "Text": "Inglés" },
+            { "key": "lang_2", "Text": "Francés" },
+            { "key": "lang_3", "Text": "Español" }
         ],
         "routes": [
             {
@@ -17,7 +17,7 @@
                 "fields": [
                     { "key": "s1_h1", "Text": "Comenzar" },
                     { "key": "s1_p1", "Text": "¡Bienvenido al curso!" },
-                    { "key": "s1_b1", "Text": "Iniciar la sección 1" }
+                    { "key": "s1_b1", "Text": "Comenzar la sección 1" }
                 ]
             },
             {
@@ -26,8 +26,8 @@
                 "pageID": 1,
                 "fields": [
                     { "key": "s1_h1", "Text": "Sección 1" },
-                    { "key": "s1_p1", "Text": "Esta es la sección 1. Haz clic en un botón abajo." },
-                    { "key": "s1_b1", "Text": "Ver resumen" },
+                    { "key": "s1_p1", "Text": "Esta es la sección 1. Haga clic en un botón abajo." },
+                    { "key": "s1_b1", "Text": "Ir al resumen" },
                     { "key": "s1_b2", "Text": "Volver al inicio" }
                 ]
             },
