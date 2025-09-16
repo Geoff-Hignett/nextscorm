@@ -1,13 +1,18 @@
 {
     "language": {
         "isocode": "fr-FR",
-        "friendlyname": "Français France",
+        "friendlyname": "Français",
         "langID": 1,
         "ui": [
             { "key": "lang_selector_label", "Text": "Langue" },
-            { "key": "lang_1", "Text": "Anglais" },
-            { "key": "lang_2", "Text": "Français" },
-            { "key": "lang_3", "Text": "Espagnol" }
+            {
+                "key": "lang_options",
+                "langs": [
+                    { "code": "en-GB", "Text": "English" },
+                    { "code": "fr-FR", "Text": "Français" },
+                    { "code": "es-ES", "Text": "Español" }
+                ]
+            }
         ],
         "routes": [
             {
@@ -15,7 +20,7 @@
                 "title": "Introduction",
                 "pageID": 0,
                 "fields": [
-                    { "key": "s1_h1", "Text": "Commencer" },
+                    { "key": "s1_h1", "Text": "Démarrer" },
                     { "key": "s1_p1", "Text": "Bienvenue dans le cours !" },
                     { "key": "s1_b1", "Text": "Commencer la section 1" }
                 ]

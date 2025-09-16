@@ -5,9 +5,14 @@
         "langID": 0,
         "ui": [
             { "key": "lang_selector_label", "Text": "Language" },
-            { "key": "lang_1", "Text": "English" },
-            { "key": "lang_2", "Text": "French" },
-            { "key": "lang_3", "Text": "Spanish" }
+            {
+                "key": "lang_options",
+                "langs": [
+                    { "code": "en-GB", "Text": "English" },
+                    { "code": "fr-FR", "Text": "Français" },
+                    { "code": "es-ES", "Text": "Español" }
+                ]
+            }
         ],
         "routes": [
             {

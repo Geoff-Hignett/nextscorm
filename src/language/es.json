@@ -1,13 +1,18 @@
 {
     "language": {
         "isocode": "es-ES",
-        "friendlyname": "Español España",
+        "friendlyname": "Español",
         "langID": 2,
         "ui": [
             { "key": "lang_selector_label", "Text": "Idioma" },
-            { "key": "lang_1", "Text": "Inglés" },
-            { "key": "lang_2", "Text": "Francés" },
-            { "key": "lang_3", "Text": "Español" }
+            {
+                "key": "lang_options",
+                "langs": [
+                    { "code": "en-GB", "Text": "English" },
+                    { "code": "fr-FR", "Text": "Français" },
+                    { "code": "es-ES", "Text": "Español" }
+                ]
+            }
         ],
         "routes": [
             {
@@ -17,7 +22,7 @@
                 "fields": [
                     { "key": "s1_h1", "Text": "Comenzar" },
                     { "key": "s1_p1", "Text": "¡Bienvenido al curso!" },
-                    { "key": "s1_b1", "Text": "Comenzar la sección 1" }
+                    { "key": "s1_b1", "Text": "Iniciar la sección 1" }
                 ]
             },
             {

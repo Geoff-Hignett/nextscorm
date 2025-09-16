@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import LangWrapper from "@/components/lang/LangWrapper"; // 👈 new wrapper
+import LangWrapper from "@/components/lang/LangWrapper";
 
 const poppins = Poppins({
     variable: "--font-poppins",
