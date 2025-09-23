@@ -6,66 +6,28 @@
  * - Provides helpers (i18nR, i18nUI) for route, component, and UI translations
  */
 
-import { create } from "zustand";
+import { create, StateCreator } from "zustand";
 import EN from "@/language/en.json";
 import FR from "@/language/fr.json";
 import ES from "@/language/es.json";
-
-// ---------- Types ----------
-export type Field = {
-    key: string;
-    Text: string;
-};
-
-export type Route = {
-    url: string;
-    title: string;
-    pageID: number;
-    fields: Field[];
-};
-
-export type Language = {
-    isocode: string;
-    friendlyname: string;
-    langID: number;
-    ui: Field[];
-    routes: Route[];
-};
-
-type Mode = "local" | "apiSingle" | "apiAll";
-
-type LangState = {
-    mode: Mode;
-    defaultLang: string;
-    availableLangs: string[];
-    languages: Record<string, Language>;
-    activeLang?: Language;
-    isLoading: boolean;
-    error?: string;
-    setMode: (mode: Mode) => void;
-    loadLang: (code?: string) => Promise<void>;
-    findPageByPath: (path: string) => Route | undefined;
-    i18nR: (path: string, key: string) => string;
-    i18nUI: (key: string) => string;
-};
+import type { LangState, Language, Mode } from "./langTypes";
 
 // ---------- Local Language Map ----------
 const localLangs: Record<string, Language> = {
-    "en-GB": EN.language,
-    "fr-FR": FR.language,
-    "es-ES": ES.language,
+    "en-GB": EN.language as Language,
+    "fr-FR": FR.language as Language,
+    "es-ES": ES.language as Language,
 };
 
 // ---------- Store ----------
-export const useLangStore = create<LangState>((set, get) => {
+export const useLangStore = create<LangState>(((set, get) => {
     const defaultLang = "en-GB";
-    const mode: Mode = "local"; // change default if needed
+    const mode: Mode = "local";
 
     return {
         mode,
         defaultLang,
         availableLangs: Object.keys(localLangs),
-        // 👇 preload local mode synchronously
         languages: mode === "local" ? { [defaultLang]: localLangs[defaultLang] } : {},
         activeLang: mode === "local" ? localLangs[defaultLang] : undefined,
         isLoading: false,
@@ -81,7 +43,6 @@ export const useLangStore = create<LangState>((set, get) => {
 
             try {
                 if (mode === "local") {
-                    // local mode is already preloaded, just swap activeLang
                     const lang = localLangs[langCode];
                     if (!lang) throw new Error(`No local language: ${langCode}`);
                     set({
@@ -134,7 +95,16 @@ export const useLangStore = create<LangState>((set, get) => {
         i18nUI: (key) => {
             const { activeLang } = get();
             const field = activeLang?.ui.find((f) => f.key === key);
-            return field ? field.Text : "TEXT NOT FOUND";
+
+            if (!field) return "TEXT NOT FOUND";
+
+            // only return .Text if this is a "normal case"
+            if ("Text" in field) {
+                return field.Text;
+            }
+
+            // if it's the lang_options field, decide what to return
+            return "TEXT NOT FOUND";
         },
     };
-});
+}) as StateCreator<LangState>);
