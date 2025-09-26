@@ -3,3 +3,9 @@
 body {
     --font-sans: var(--font-poppins);
 }
+
+@layer base {
+    button {
+        @apply cursor-pointer;
+    }
+}
