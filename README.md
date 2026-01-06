@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NextScorm
 
-## Getting Started
+A modern **Next.js + TypeScript SCORM course shell** with:
 
-First, run the development server:
+-   SCORM 1.2 & 2004 runtime support
+-   Route and component-based internationalisation (i18n)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧠 Architectural Principles
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Progressive language delivery (local → API)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The language system is designed to support **multiple delivery strategies**, depending on the needs of the project and its future evolution.
 
-## Learn More
+Out of the box, it supports:
 
-To learn more about Next.js, take a look at the following resources:
+-   **Local JSON**  
+    Languages are bundled with the app for fast startup, zero network dependency, and simple development.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-   **Per-language API (`apiSingle`)**  
+    Each language is fetched independently (e.g. `/api/lang/en-GB`), allowing:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    -   incremental loading
+    -   smaller payloads
+    -   easier cache control
+    -   CMS-backed languages without shipping all content up front
 
-## Deploy on Vercel
+-   **All-languages API (`apiAll`)**  
+    All languages are fetched from a single endpoint (e.g. `/api/langs`), which can be preferable when:
+    -   languages are small
+    -   switching languages frequently
+    -   the backend already aggregates translations centrally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The active mode is controlled via configuration, not refactors, so the UI and consuming code remain unchanged.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### Trade-offs (intentional)
+
+-   **Local JSON** is simplest and fastest, but requires a redeploy for content changes.
+-   **Per-language APIs** scale well for CMS-driven content, but introduce more network requests.
+-   **All-languages APIs** reduce request count, but can increase initial payload size.
+
+The store abstracts these differences so that the application logic does not need to care _where_ language data comes from — only that it arrives in a consistent shape.
+
+### 2. Route-scoped language
+
+The majority of language fields are grouped by **route**, rather than being tied directly to individual components.
+
+Why?
+
+-   **Content ownership is clearer** – pages own their copy, not components
+-   **CMS-friendly structure** – non-developers think in terms of pages, not React components
+-   **Translation process** – human translators prefer to see the language in the order it appears to ascertain context in real time
+-   **Avoids key collisions** as the course grows
+
+Global UI copy (e.g. language selector labels) lives separately from route-scoped content.
+
+### 3. SCORM lifecycle is global
+
+The SCORM connection:
+
+-   Initialises once at app load
+-   Terminates cleanly on unload
+-   Is not tied to route changes
+
+This avoids duplicate `Initialize()` / `Terminate()` calls in SPA navigation.
+
+---
+
+## 📁 Project Structure
