@@ -5,7 +5,6 @@ import { useLangStore } from "@/stores/langStore";
 export default function LangSelector() {
     const { activeLang, loadLang, i18nUI } = useLangStore();
 
-    // pull the lang_options array from activeLang.ui
     const langOptions = activeLang?.ui.find((f): f is Extract<typeof f, { key: "lang_options" }> => f.key === "lang_options")?.langs ?? [];
 
     return (

@@ -22,7 +22,7 @@ const localLangs: Record<string, Language> = {
 // ---------- Store ----------
 export const useLangStore = create<LangState>(((set, get) => {
     const defaultLang = "en-GB";
-    const mode: Mode = "local";
+    const mode: Mode = (process.env.NEXT_PUBLIC_LANG_MODE as Mode) ?? "local";
 
     return {
         mode,

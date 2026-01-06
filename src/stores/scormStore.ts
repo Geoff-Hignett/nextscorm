@@ -109,6 +109,13 @@ export const useScormStore = create<ScormState>((set, get) => ({
     scormSetSuspendData: (data: object) => {
         const state = get();
         state.reconnectAttemptIfNeeded();
+
+        /**
+         * SCORM suspend_data encoding:
+         * - Avoids LMS character restrictions and truncation
+         * - Must be reversed on read
+         * - Compatible with SCORM 1.2 length limits
+         */
         let jsonData = JSON.stringify(data).replace(/[']/g, "¬").replace(/["]+/g, "~").replace(/[,]/g, "|");
 
         if (state.scormAPIConnected) {
@@ -294,7 +301,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
 
     reconnectAttemptIfNeeded: () => {
         const state = get();
-        if (!state.scormConnectRun) {
+        if (!state.scormConnectRun && !state.scormAPIConnected) {
             console.log("SCORM not connected, reconnecting...");
             state.scormConnect();
         }
