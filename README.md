@@ -34,13 +34,13 @@ Out of the box, it supports:
 
 The active mode is controlled via configuration, not refactors, so the UI and consuming code remain unchanged.
 
-#### Trade-offs (intentional)
+#### Trade-offs
 
 -   **Local JSON** is simplest and fastest, but requires a redeploy for content changes.
 -   **Per-language APIs** scale well for CMS-driven content, but introduce more network requests.
 -   **All-languages APIs** reduce request count, but can increase initial payload size.
 
-The store abstracts these differences so that the application logic does not need to care _where_ language data comes from — only that it arrives in a consistent shape.
+The store abstracts these differences so that the application logic does not need to care _where_ language data comes from - only that it arrives in a consistent shape.
 
 ### 2. Route-scoped language
 
@@ -54,17 +54,3 @@ Why?
 -   **Avoids key collisions** as the course grows
 
 Global UI copy (e.g. language selector labels) lives separately from route-scoped content.
-
-### 3. SCORM lifecycle is global
-
-The SCORM connection:
-
--   Initialises once at app load
--   Terminates cleanly on unload
--   Is not tied to route changes
-
-This avoids duplicate `Initialize()` / `Terminate()` calls in SPA navigation.
-
----
-
-## 📁 Project Structure
