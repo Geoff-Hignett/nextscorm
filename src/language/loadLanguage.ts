@@ -1,4 +1,4 @@
-import type { Language } from "@/stores/langTypes";
+import type { Language } from "@/types/language";
 
 /**
  * Runtime validator / caster for language JSON.

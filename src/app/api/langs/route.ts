@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import EN from "@/language/en.json";
 import FR from "@/language/fr.json";
 import ES from "@/language/es.json";
-import type { Language, UIField, UITextField } from "@/stores/langTypes";
+import type { Language, UIField, UITextField } from "@/types/language";
 import { loadLanguage } from "@/language/loadLanguage";
 
 // ---------- Type guard ----------

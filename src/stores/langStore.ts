@@ -10,7 +10,8 @@ import { create, StateCreator } from "zustand";
 import EN from "@/language/en.json";
 import FR from "@/language/fr.json";
 import ES from "@/language/es.json";
-import type { LangState, Language, Mode } from "./langTypes";
+import type { LangState, Mode } from "./langTypes";
+import type { Language } from "@/types/language";
 
 // ---------- Local Language Map ----------
 const localLangs: Record<string, Language> = {
