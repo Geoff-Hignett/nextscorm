@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLangStore } from "@/stores/langStore";
-import ScormDebug from "@/components/scorm/ScormDebug";
 
 export default function Introduction() {
     const pathname = usePathname();
@@ -15,7 +14,6 @@ export default function Introduction() {
             <Link href="/section1" className="rounded bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">
                 {i18nR(pathname, "s1_b1")}
             </Link>
-            <ScormDebug />
         </main>
     );
 }

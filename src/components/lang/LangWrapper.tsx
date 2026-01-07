@@ -19,7 +19,7 @@ export default function LangWrapper({ children }: { children: React.ReactNode })
 
     return (
         <>
-            <header className="flex justify-end p-4 border-b">
+            <header className="absolute top-0 left-0 w-full flex justify-end p-4">
                 <LangSelector />
             </header>
             <main>{children}</main>

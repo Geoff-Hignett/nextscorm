@@ -10,6 +10,7 @@
 import { create } from "zustand";
 import { scormAPI } from "@/lib/scormApi";
 import type { ScormState } from "./scormTypes";
+import { debugLog } from "@/infra/debugLogger";
 
 // ---------- Store ----------
 export const useScormStore = create<ScormState>((set, get) => ({
@@ -53,9 +54,12 @@ export const useScormStore = create<ScormState>((set, get) => ({
         const state = get();
         if (state.scormAPIConnected) {
             console.log("---SCORM already connected---");
+            debugLog("info", "scorm", "SCORM already connected");
             return;
         }
         console.log("---SCORM connect---");
+        debugLog("info", "scorm", "SCORM connect attempted");
+
         state.API.configure({ version: "2004", debug: true });
         const result = state.API.initialize();
         set({
@@ -65,11 +69,16 @@ export const useScormStore = create<ScormState>((set, get) => ({
             version: result.version,
         });
         console.warn("SCORM VERSION", result.version);
+        debugLog("info", "scorm", "SCORM initialised", {
+            version: result.version,
+            success: result.success,
+        });
 
         const currentStatus = result.version === "1.2" ? state.API.get("cmi.core.lesson_status") : state.API.get("cmi.completion_status");
 
-        if (!["completed", "passed"].includes(currentStatus?.toLowerCase())) {
+        if (result.success && !["completed", "passed"].includes(currentStatus?.toLowerCase())) {
             console.log("mark course incomplete");
+            debugLog("info", "scorm", "Marking SCORM incomplete");
             if (result.version === "1.2") {
                 state.API.set("cmi.core.lesson_status", "incomplete");
             } else {
@@ -80,6 +89,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
 
     scormlogNotConnected: () => {
         console.warn("SCORM not connected");
+        debugLog("warn", "scorm", "SCORM API not connected");
     },
 
     scormGetLocation: () => {
@@ -89,7 +99,11 @@ export const useScormStore = create<ScormState>((set, get) => ({
             loc = state.version === "1.2" ? state.API.get("cmi.core.lesson_location") : state.API.get("cmi.location");
         } else {
             loc = sessionStorage.getItem("bookmark") ?? "0";
+            debugLog("warn", "scorm", "SCORM location read from sessionStorage fallback", {
+                location: loc,
+            });
         }
+
         console.log(loc);
         return parseInt(loc);
     },
@@ -102,6 +116,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
             return suspendData;
         } else {
             console.log("scorm not connected");
+            debugLog("warn", "scorm", "Attempted getSuspendData while SCORM disconnected");
             return false;
         }
     },
@@ -118,12 +133,22 @@ export const useScormStore = create<ScormState>((set, get) => ({
          */
         let jsonData = JSON.stringify(data).replace(/[']/g, "¬").replace(/["]+/g, "~").replace(/[,]/g, "|");
 
+        debugLog("info", "scorm", "Setting suspend data", {
+            length: jsonData.length,
+            scormVersion: state.version || "unknown",
+        });
+
         if (state.scormAPIConnected) {
             if (state.version === "1.2" && jsonData.length > 4096) {
+                debugLog("error", "scorm", "Suspend data exceeds SCORM 1.2 limit", {
+                    length: jsonData.length,
+                });
+
                 throw new Error("Suspend Data length cannot exceed 4096 on SCORM 1.2");
             }
             state.API.set("cmi.suspend_data", jsonData);
         } else {
+            debugLog("warn", "scorm", "Suspend data stored in sessionStorage fallback");
             sessionStorage.setItem("suspend_data", jsonData);
         }
 
@@ -137,16 +162,22 @@ export const useScormStore = create<ScormState>((set, get) => ({
         const state = get();
         if (!state.scormAPIConnected) {
             console.warn("SCORM not connected — cannot get score");
+            debugLog("warn", "scorm", "Attempted getScore while SCORM disconnected");
             return null;
         }
         const scoreStr = state.version === "1.2" ? state.API.get("cmi.core.score.raw") : state.API.get("cmi.score.raw");
         if (!scoreStr) {
             console.warn("No score found in SCORM data");
+            debugLog("warn", "scorm", "No SCORM score found");
             return null;
         }
         const score = Number(scoreStr);
         if (isNaN(score)) {
             console.warn("SCORM score is not a number:", scoreStr);
+            debugLog("error", "scorm", "Invalid SCORM score value", {
+                value: scoreStr,
+            });
+            debugLog("info", "scorm", "SCORM score retrieved", { score });
             return null;
         }
         return score;
@@ -156,10 +187,12 @@ export const useScormStore = create<ScormState>((set, get) => ({
         const state = get();
         if (!state.scormAPIConnected) {
             console.log("attempting getStudentName but scorm not connected");
+            debugLog("warn", "scorm", "Attempted getStudentName while SCORM disconnected");
             return;
         }
         const name = state.version === "1.2" ? state.API.get("cmi.core.student_name") : state.API.get("cmi.learner_name");
         console.log("Student Name:", name);
+        debugLog("info", "scorm", "SCORM learner name retrieved", { name });
         return name;
     },
 
@@ -167,10 +200,12 @@ export const useScormStore = create<ScormState>((set, get) => ({
         const state = get();
         if (!state.scormAPIConnected) {
             console.log("attempting getStudentID but scorm not connected");
+            debugLog("warn", "scorm", "Attempted getStudentID while SCORM disconnected");
             return;
         }
         const id = state.version === "1.2" ? state.API.get("cmi.core.student_id") : state.API.get("cmi.learner_id");
         console.log("Student ID:", id);
+        debugLog("info", "scorm", "SCORM learner ID retrieved", { id });
         return id;
     },
 
@@ -184,6 +219,9 @@ export const useScormStore = create<ScormState>((set, get) => ({
                 state.API.set("cmi.completion_status", "completed");
             }
             state.API.commit();
+            debugLog("info", "scorm", "SCORM course marked complete", {
+                version: state.version,
+            });
         } else {
             state.scormlogNotConnected();
         }
@@ -199,6 +237,10 @@ export const useScormStore = create<ScormState>((set, get) => ({
                 state.API.set("cmi.location", location.toString());
             }
             state.API.commit();
+            debugLog("info", "scorm", "SCORM location set", {
+                location,
+                version: state.version,
+            });
         } else {
             console.log("scorm not connected cant set location");
         }
@@ -208,6 +250,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
         const state = get();
         state.reconnectAttemptIfNeeded();
         console.log("setting score:", score);
+        debugLog("info", "scorm", "Setting SCORM score", { score });
         if (state.scormAPIConnected) {
             if (state.version === "1.2") {
                 state.API.set("cmi.core.score.min", "0");
@@ -229,8 +272,10 @@ export const useScormStore = create<ScormState>((set, get) => ({
             state.API.set("cmi.objectives.0.id", "objective_1");
             state.API.commit();
             console.log("SCORM objectives initialized");
+            debugLog("info", "scorm", "SCORM objectives initialised");
         } else {
             console.warn("SCORM not connected, cannot initialize objectives");
+            debugLog("warn", "scorm", "Attempted initObjectives while SCORM disconnected");
         }
     },
 
@@ -242,8 +287,15 @@ export const useScormStore = create<ScormState>((set, get) => ({
             state.API.set(basePath, score.toString());
             state.API.commit();
             console.log(`SCORM objective ${index} score set to ${score}`);
+            debugLog("info", "scorm", "SCORM objective score set", {
+                index,
+                score,
+            });
         } else {
             console.warn("SCORM not connected, cannot set objective score");
+            debugLog("warn", "scorm", "Attempted setObjectiveScore while SCORM disconnected", {
+                index,
+            });
         }
     },
 
@@ -256,8 +308,15 @@ export const useScormStore = create<ScormState>((set, get) => ({
             state.API.set(basePath, value);
             state.API.commit();
             console.log(`SCORM objective ${index} progress set to ${value}`);
+            debugLog("info", "scorm", "SCORM objective progress set", {
+                index,
+                progress,
+            });
         } else {
             console.warn("SCORM not connected, cannot set objective progress");
+            debugLog("warn", "scorm", "Attempted setObjectiveProgress while SCORM disconnected", {
+                index,
+            });
         }
     },
 
@@ -268,12 +327,19 @@ export const useScormStore = create<ScormState>((set, get) => ({
         current.learnerResponse = learnerResponse;
         current.wasCorrect = learnerResponse === current.correctAnswer;
         set({ interactions: [...state.interactions] });
+        debugLog("info", "scorm", "Interaction updated locally", {
+            interaction,
+            learnerResponse,
+        });
     },
 
     recordScormQuestion: (questionRef, questionType, learnerResponse, correctAnswer, wasCorrect, objectiveId, interactionID) => {
         const state = get();
         if (!state.scormAPIConnected) {
             console.warn("SCORM not connected — skipping interaction log");
+            debugLog("warn", "scorm", "Attempted recordScormQuestion while SCORM disconnected", {
+                questionRef,
+            });
             return;
         }
         const index = interactionID;
@@ -297,12 +363,18 @@ export const useScormStore = create<ScormState>((set, get) => ({
 
         state.API.commit();
         console.log(`Interaction ${index} sent to LMS`);
+        debugLog("info", "scorm", "SCORM interaction recorded", {
+            interactionID,
+            questionRef,
+            wasCorrect,
+        });
     },
 
     reconnectAttemptIfNeeded: () => {
         const state = get();
         if (!state.scormConnectRun && !state.scormAPIConnected) {
             console.log("SCORM not connected, reconnecting...");
+            debugLog("warn", "scorm", "Reconnect attempt triggered");
             state.scormConnect();
         }
     },
@@ -312,6 +384,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
         state.reconnectAttemptIfNeeded();
         if (state.scormAPIConnected) {
             state.API.terminate();
+            debugLog("info", "scorm", "SCORM session terminated");
         } else {
             state.scormlogNotConnected();
         }

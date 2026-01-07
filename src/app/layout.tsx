@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import LangWrapper from "@/components/lang/LangWrapper";
 import ScormWrapper from "@/components/scorm/ScormWrapper";
+import DebugToggle from "@/components/debug/DebugToggle";
+import DebugPanel from "@/components/debug/DebugPanel";
 
 const poppins = Poppins({
     variable: "--font-poppins",
@@ -20,7 +22,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <html lang="en">
             <body className={`${poppins.variable} font-sans antialiased`}>
                 <LangWrapper>
-                    <ScormWrapper>{children}</ScormWrapper>
+                    <ScormWrapper>
+                        <DebugToggle />
+                        <DebugPanel />
+                        {children}
+                    </ScormWrapper>
                 </LangWrapper>
             </body>
         </html>

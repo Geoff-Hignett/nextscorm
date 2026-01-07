@@ -6,7 +6,7 @@ export default function ScormDebug() {
     const scorm = useScormStore();
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 bg-red-300 rounded-2xl">
             <div className="flex items-center mb-4 gap-4">
                 <h2 className="font-bold text-xl">SCORM Test</h2>
                 <h2>
@@ -66,8 +66,6 @@ export default function ScormDebug() {
                     </button>
                 )}
             </div>
-
-            {/* Future: Interactions UI could go here */}
         </div>
     );
 }
