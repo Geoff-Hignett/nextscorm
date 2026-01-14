@@ -11,6 +11,7 @@ export default function ScormWrapper({ children }: Props) {
     const scorm = useScormStore();
 
     useEffect(() => {
+        scorm.hydrateFromPersistence();
         scorm.scormConnect();
 
         return () => {

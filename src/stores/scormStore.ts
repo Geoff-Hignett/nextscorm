@@ -16,11 +16,11 @@ import { debugLog } from "@/lib/infra/debugLogger";
 export const useScormStore = create<ScormState>((set, get) => ({
     API: scormAPI,
     version: "",
-    location: 0,
     scormAPIConnected: false,
     scormConnectRun: 0,
     scormInited: { success: false, version: "" },
-    suspendData: "",
+    suspendData: null,
+    location: null,
     interactions: [
         {
             interactionID: "0",
@@ -68,6 +68,11 @@ export const useScormStore = create<ScormState>((set, get) => ({
             scormAPIConnected: result.success,
             version: result.version,
         });
+
+        if (result.success) {
+            get().hydrateFromPersistence();
+        }
+
         console.warn("SCORM VERSION", result.version);
         debugLog("info", "scorm", "SCORM initialised", {
             version: result.version,
@@ -94,18 +99,15 @@ export const useScormStore = create<ScormState>((set, get) => ({
 
     scormGetLocation: () => {
         const state = get();
-        let loc = "0";
+
         if (state.scormAPIConnected) {
-            loc = state.version === "1.2" ? state.API.get("cmi.core.lesson_location") : state.API.get("cmi.location");
-        } else {
-            loc = localStorage.getItem("bookmark") ?? "0";
-            debugLog("warn", "scorm", "SCORM location read from localStorage fallback", {
-                location: loc,
-            });
+            const raw = state.version === "1.2" ? state.API.get("cmi.core.lesson_location") : state.API.get("cmi.location");
+
+            return parseInt(raw || "0", 10);
         }
 
-        console.log(loc);
-        return parseInt(loc);
+        const fallback = localStorage.getItem("bookmark");
+        return fallback ? parseInt(fallback, 10) : 0;
     },
 
     scormGetSuspendData: () => {
@@ -125,37 +127,25 @@ export const useScormStore = create<ScormState>((set, get) => ({
         const state = get();
         state.reconnectAttemptIfNeeded();
 
-        /**
-         * SCORM suspend_data encoding:
-         * - Avoids LMS character restrictions and truncation
-         * - Must be reversed on read
-         * - Compatible with SCORM 1.2 length limits
-         */
-        let jsonData = JSON.stringify(data).replace(/[']/g, "¬").replace(/["]+/g, "~").replace(/[,]/g, "|");
-
-        debugLog("info", "scorm", "Setting suspend data", {
-            length: jsonData.length,
-            scormVersion: state.version || "unknown",
-        });
+        const encoded = JSON.stringify(data).replace(/[']/g, "¬").replace(/["]+/g, "~").replace(/[,]/g, "|");
 
         if (state.scormAPIConnected) {
-            if (state.version === "1.2" && jsonData.length > 4096) {
-                debugLog("error", "scorm", "Suspend data exceeds SCORM 1.2 limit", {
-                    length: jsonData.length,
-                });
-
+            if (state.version === "1.2" && encoded.length > 4096) {
                 throw new Error("Suspend Data length cannot exceed 4096 on SCORM 1.2");
             }
-            state.API.set("cmi.suspend_data", jsonData);
+
+            state.API.set("cmi.suspend_data", encoded);
+            state.API.commit();
         } else {
-            debugLog("warn", "scorm", "Suspend data stored in localStorage fallback");
-            localStorage.setItem("suspend_data", jsonData);
+            localStorage.setItem("suspend_data", encoded);
         }
 
-        localStorage.setItem("suspend_data_str", jsonData);
-        localStorage.setItem("suspend_data", JSON.stringify(data));
-        set({ suspendData: jsonData });
-        state.API.commit();
+        set({ suspendData: encoded });
+
+        debugLog("info", "scorm", "Suspend data persisted", {
+            length: encoded.length,
+            target: state.scormAPIConnected ? "lms" : "local",
+        });
     },
 
     scormGetScore: () => {
@@ -230,6 +220,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
     scormSetLocation: (location: number) => {
         const state = get();
         state.reconnectAttemptIfNeeded();
+
         if (state.scormAPIConnected) {
             if (state.version === "1.2") {
                 state.API.set("cmi.core.lesson_location", location.toString());
@@ -237,14 +228,16 @@ export const useScormStore = create<ScormState>((set, get) => ({
                 state.API.set("cmi.location", location.toString());
             }
             state.API.commit();
-            debugLog("info", "scorm", "SCORM location set", {
-                location,
-                version: state.version,
-            });
         } else {
-            console.log("scorm not connected cant set location");
-            debugLog("info", "scorm", "Scorm not connected - cannot set location");
+            localStorage.setItem("bookmark", location.toString());
         }
+
+        set({ location });
+
+        debugLog("info", "scorm", "Location persisted", {
+            location,
+            target: state.scormAPIConnected ? "lms" : "local",
+        });
     },
 
     scormSetScore: (score: number) => {
@@ -378,6 +371,40 @@ export const useScormStore = create<ScormState>((set, get) => ({
             debugLog("warn", "scorm", "Reconnect attempt triggered");
             state.scormConnect();
         }
+    },
+
+    hydrateFromPersistence: () => {
+        const state = get();
+
+        if (state.scormAPIConnected) {
+            const suspend = state.API.get("cmi.suspend_data");
+            const loc = state.version === "1.2" ? state.API.get("cmi.core.lesson_location") : state.API.get("cmi.location");
+
+            set({
+                suspendData: suspend ?? null,
+                location: loc ? parseInt(loc, 10) : null,
+            });
+
+            debugLog("info", "scorm", "Hydrated from LMS", {
+                suspendLength: suspend?.length ?? 0,
+                location: loc,
+            });
+
+            return;
+        }
+
+        const suspend = localStorage.getItem("suspend_data");
+        const loc = localStorage.getItem("bookmark");
+
+        set({
+            suspendData: suspend ?? null,
+            location: loc ? parseInt(loc, 10) : null,
+        });
+
+        debugLog("info", "scorm", "Hydrated from localStorage", {
+            suspendLength: suspend?.length ?? 0,
+            location: loc,
+        });
     },
 
     scormTerminate: () => {

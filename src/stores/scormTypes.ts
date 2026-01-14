@@ -3,11 +3,11 @@ import { ScormInitResult, ScormInteraction } from "@/types/scorm";
 export type ScormState = {
     API: any; // will be typed from scormAPI
     version: string;
-    location: number;
     scormAPIConnected: boolean;
     scormConnectRun: number;
     scormInited: ScormInitResult;
-    suspendData: string;
+    suspendData: string | null;
+    location: number | null;
     interactions: ScormInteraction[];
 
     // Actions
@@ -37,4 +37,5 @@ export type ScormState = {
     ) => void;
     reconnectAttemptIfNeeded: () => void;
     scormTerminate: () => void;
+    hydrateFromPersistence: () => void;
 };

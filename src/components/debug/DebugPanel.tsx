@@ -4,11 +4,14 @@ import { useDebugStore } from "@/stores/debugStore";
 import { useScormStore } from "@/stores/scormStore";
 import { isDebugEnabled } from "@/lib/infra/env";
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function Row({ label, value, source }: { label: string; value: React.ReactNode; source?: "LMS" | "Local" }) {
     return (
         <div className="grid grid-cols-2 gap-2 py-0.5">
             <span className="text-gray-500">{label}</span>
-            <span className="font-mono text-gray-900">{value ?? "—"}</span>
+            <span className="font-mono text-gray-900">
+                {value ?? "—"}
+                {source && <span className="ml-2 text-xs text-gray-500">({source})</span>}
+            </span>
         </div>
     );
 }
@@ -27,6 +30,8 @@ export default function DebugPanel() {
 
     if (!isDebugEnabled || !visible) return null;
 
+    const source: "LMS" | "Local" = scorm.scormAPIConnected ? "LMS" : "Local";
+
     return (
         <div className="fixed inset-4 z-[9998] bg-white rounded-xl shadow-2xl flex flex-col">
             {/* Header */}
@@ -37,16 +42,15 @@ export default function DebugPanel() {
                 </button>
             </header>
 
-            {/* State snapshot */}
+            {/* Persistence snapshot */}
             <section className="px-4 py-3 border-b text-sm">
-                <h3 className="font-semibold mb-2">SCORM State</h3>
+                <h3 className="font-semibold mb-2">Persistence</h3>
 
-                <Row label="Version" value={scorm.version || "—"} />
-                <Row label="Connected" value={scorm.scormAPIConnected ? "Yes" : "No"} />
-                <Row label="Location" value={scorm.location} />
-                <Row label="Suspend data size" value={scorm.suspendData ? `${scorm.suspendData.length} chars` : "—"} />
-                <Row label="Interactions" value={scorm.interactions.length} />
-                <Row label="Connect attempts" value={scorm.scormConnectRun} />
+                <Row label="Active target" value={source === "LMS" ? "LMS (SCORM)" : "LocalStorage"} />
+
+                <Row label="Suspend data" value={scorm.suspendData ? `${scorm.suspendData.length} chars` : "—"} source={source} />
+
+                <Row label="Location" value={scorm.location ?? "—"} source={source} />
             </section>
 
             {/* Actions */}
@@ -58,6 +62,15 @@ export default function DebugPanel() {
                     <div>
                         <div className="text-gray-500 text-xs mb-1">Progress</div>
                         <div className="flex flex-wrap gap-2">
+                            <ActionButton
+                                label="Set suspend data → {foo:'bar'}"
+                                onClick={() =>
+                                    scorm.scormSetSuspendData({
+                                        foo: "bar",
+                                        location: 1,
+                                    })
+                                }
+                            />
                             <ActionButton label="Set location → 1" onClick={() => scorm.scormSetLocation(1)} />
                             <ActionButton label="Set score → 50" onClick={() => scorm.scormSetScore(50)} />
                             <ActionButton label="Mark complete" onClick={scorm.scormSetComplete} />

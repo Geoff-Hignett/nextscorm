@@ -67,6 +67,33 @@ The SCORM connection:
 
 This mirrors how LMS platforms expect SCORM content to behave and avoids repeated or invalid initialise / terminate calls during SPA navigation.
 
+### 3.1 Runtime hydration and persistence precedence
+
+On application startup, the course must restore learner progress before it knows
+whether a SCORM LMS is available.
+
+The runtime follows a **progressive hydration strategy**:
+
+1. **Initial hydration from browser storage**
+
+    - Used during local development and preview
+    - Provides immediate state after refresh
+    - Safe no-op for LMS-only users with no local data
+
+2. **Authoritative hydration from the LMS**
+    - Triggered after a successful SCORM initialise
+    - Overrides any locally hydrated state
+    - Ensures LMS data is always the final source of truth
+
+This approach guarantees that:
+
+-   local development works without an LMS
+-   LMS-only learners always resume correctly
+-   state is never lost due to timing or environment differences
+
+Hydration is idempotent and may occur more than once during startup.
+The store always hydrates from the best source available at that moment.
+
 #### Why global?
 
 SCORM APIs are stateful and fragile. Re-initialising the connection on every route change can lead to:
