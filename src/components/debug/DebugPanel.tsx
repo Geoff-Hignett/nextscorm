@@ -2,7 +2,7 @@
 
 import { useDebugStore } from "@/stores/debugStore";
 import { useScormStore } from "@/stores/scormStore";
-import { isDebugEnabled } from "@/infra/env";
+import { isDebugEnabled } from "@/lib/infra/env";
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (

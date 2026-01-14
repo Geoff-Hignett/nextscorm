@@ -10,7 +10,7 @@
 import { create } from "zustand";
 import { scormAPI } from "@/lib/scormApi";
 import type { ScormState } from "./scormTypes";
-import { debugLog } from "@/infra/debugLogger";
+import { debugLog } from "@/lib/infra/debugLogger";
 
 // ---------- Store ----------
 export const useScormStore = create<ScormState>((set, get) => ({
@@ -98,8 +98,8 @@ export const useScormStore = create<ScormState>((set, get) => ({
         if (state.scormAPIConnected) {
             loc = state.version === "1.2" ? state.API.get("cmi.core.lesson_location") : state.API.get("cmi.location");
         } else {
-            loc = sessionStorage.getItem("bookmark") ?? "0";
-            debugLog("warn", "scorm", "SCORM location read from sessionStorage fallback", {
+            loc = localStorage.getItem("bookmark") ?? "0";
+            debugLog("warn", "scorm", "SCORM location read from localStorage fallback", {
                 location: loc,
             });
         }
@@ -148,12 +148,12 @@ export const useScormStore = create<ScormState>((set, get) => ({
             }
             state.API.set("cmi.suspend_data", jsonData);
         } else {
-            debugLog("warn", "scorm", "Suspend data stored in sessionStorage fallback");
-            sessionStorage.setItem("suspend_data", jsonData);
+            debugLog("warn", "scorm", "Suspend data stored in localStorage fallback");
+            localStorage.setItem("suspend_data", jsonData);
         }
 
-        sessionStorage.setItem("suspend_data_str", jsonData);
-        sessionStorage.setItem("suspend_data", JSON.stringify(data));
+        localStorage.setItem("suspend_data_str", jsonData);
+        localStorage.setItem("suspend_data", JSON.stringify(data));
         set({ suspendData: jsonData });
         state.API.commit();
     },
@@ -243,6 +243,7 @@ export const useScormStore = create<ScormState>((set, get) => ({
             });
         } else {
             console.log("scorm not connected cant set location");
+            debugLog("info", "scorm", "Scorm not connected - cannot set location");
         }
     },
 

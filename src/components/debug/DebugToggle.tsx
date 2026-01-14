@@ -1,7 +1,7 @@
 "use client";
 
 import { useDebugStore } from "@/stores/debugStore";
-import { isDebugEnabled } from "@/infra/env";
+import { isDebugEnabled } from "@/lib/infra/env";
 
 export default function DebugToggle() {
     const toggleVisible = useDebugStore((s) => s.toggleVisible);
