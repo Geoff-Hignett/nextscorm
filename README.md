@@ -3,7 +3,11 @@
 A modern **Next.js + TypeScript SCORM course shell** with:
 
 -   SCORM 1.2 & 2004 runtime support
--   Route and component-based internationalisation (i18n)
+-   Global SCORM lifecycle management (SPA-safe initialise / terminate)
+-   Robust suspend data & location persistence with LMS ↔ local fallback
+-   Progressive runtime hydration (local preview → LMS authoritative)
+-   Route- and component-based internationalisation (i18n)
+-   Built-in SCORM debug tooling for local development
 
 ---
 
