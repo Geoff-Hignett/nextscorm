@@ -1,0 +1,52 @@
+{
+    "language": {
+        "isocode": "es-ES",
+        "friendlyname": "Español",
+        "langID": 2,
+        "ui": [
+            { "key": "lang_selector_label", "Text": "Idioma" },
+            {
+                "key": "lang_options",
+                "langs": [
+                    { "code": "en-GB", "Text": "English" },
+                    { "code": "fr-FR", "Text": "Français" },
+                    { "code": "es-ES", "Text": "Español" }
+                ]
+            }
+        ],
+        "routes": [
+            {
+                "url": "/",
+                "title": "Introducción",
+                "pageID": 0,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Comenzar" },
+                    { "key": "s1_p1", "Text": "¡Bienvenido al curso!" },
+                    { "key": "s1_b1", "Text": "Iniciar la sección 1" }
+                ]
+            },
+            {
+                "url": "/section1",
+                "title": "Sección 1",
+                "pageID": 1,
+                "fields": [
+                    { "key": "s1_h1", "Text": "Sección 1" },
+                    { "key": "s1_p1", "Text": "Esta es la sección 1. Haga clic en un botón abajo." },
+                    { "key": "s1_b1", "Text": "Ir al resumen" },
+                    { "key": "s1_b2", "Text": "Volver al inicio" }
+                ]
+            },
+            {
+                "url": "/summary",
+                "title": "Resumen",
+                "pageID": 2,
+                "fields": [
+                    { "key": "s1_h1", "Text": "¡Bien hecho!" },
+                    { "key": "s1_p1", "Text": "Has completado el curso." },
+                    { "key": "s1_b1", "Text": "Volver a la sección 1" },
+                    { "key": "s1_b2", "Text": "Volver al inicio" }
+                ]
+            }
+        ]
+    }
+}

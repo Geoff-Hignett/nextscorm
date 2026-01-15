@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useDebugStore } from "@/stores/debugStore";
 import { useScormStore } from "@/stores/scormStore";
 import { isDebugEnabled } from "@/lib/infra/env";
@@ -21,6 +22,29 @@ function ActionButton({ label, onClick }: { label: string; onClick: () => void }
         <button onClick={onClick} className="px-3 py-1.5 rounded bg-gray-800 text-white text-xs hover:bg-gray-700">
             {label}
         </button>
+    );
+}
+
+function SuspendDataView({ data }: { data: string | null | undefined }) {
+    if (!data) {
+        return <div className="text-xs text-gray-400 mt-1">—</div>;
+    }
+
+    let parsed: unknown = null;
+    let parseError = false;
+
+    try {
+        parsed = JSON.parse(data);
+    } catch {
+        parseError = true;
+    }
+
+    return (
+        <div className="mt-2 space-y-1">
+            <pre className="max-h-48 overflow-auto rounded bg-gray-100 p-2 text-xs text-gray-800">
+                {parseError ? data : JSON.stringify(parsed, null, 2)}
+            </pre>
+        </div>
     );
 }
 
@@ -48,7 +72,17 @@ export default function DebugPanel() {
 
                 <Row label="Active target" value={source === "LMS" ? "LMS (SCORM)" : "LocalStorage"} />
 
-                <Row label="Suspend data" value={scorm.suspendData ? `${scorm.suspendData.length} chars` : "—"} source={source} />
+                <div className="py-0.5">
+                    <div className="grid grid-cols-2 gap-2">
+                        <span className="text-gray-500">Suspend data</span>
+                        <span className="font-mono text-gray-900">
+                            {scorm.suspendData ? `${scorm.suspendData.length} chars` : "—"}
+                            <span className="ml-2 text-xs text-gray-500">({source})</span>
+                        </span>
+                    </div>
+
+                    <SuspendDataView data={scorm.suspendData} />
+                </div>
 
                 <Row label="Location" value={scorm.location ?? "—"} source={source} />
             </section>
@@ -74,18 +108,6 @@ export default function DebugPanel() {
                             <ActionButton label="Set location → 1" onClick={() => scorm.scormSetLocation(1)} />
                             <ActionButton label="Set score → 50" onClick={() => scorm.scormSetScore(50)} />
                             <ActionButton label="Mark complete" onClick={scorm.scormSetComplete} />
-                        </div>
-                    </div>
-
-                    {/* Objectives */}
-                    <div>
-                        <div className="text-gray-500 text-xs mb-1">Objectives</div>
-                        <div className="flex flex-wrap gap-2">
-                            <ActionButton label="Init objectives" onClick={scorm.scormInitObjectives} />
-                            <ActionButton label="Set objective 0 score → 50" onClick={() => scorm.scormSetObjectiveScore(0, 50)} />
-                            {scorm.version === "2004" && (
-                                <ActionButton label="Set objective 0 progress → 50%" onClick={() => scorm.scormSetObjectiveProgress(0, 50)} />
-                            )}
                         </div>
                     </div>
 

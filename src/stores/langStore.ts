@@ -7,11 +7,13 @@
  */
 
 import { create, StateCreator } from "zustand";
-import EN from "@/language/en.json";
-import FR from "@/language/fr.json";
-import ES from "@/language/es.json";
+import EN from "@/language/en-GB.json";
+import FR from "@/language/fr-FR.json";
+import ES from "@/language/es-ES.json";
 import type { LangState, Mode } from "./langTypes";
 import type { Language } from "@/types/language";
+
+const API_BASE = process.env.NEXT_PUBLIC_LANG_API_BASE;
 
 // ---------- Local Language Map ----------
 const localLangs: Record<string, Language> = {
@@ -23,6 +25,7 @@ const localLangs: Record<string, Language> = {
 // ---------- Store ----------
 export const useLangStore = create<LangState>(((set, get) => {
     const defaultLang = "en-GB";
+
     const mode: Mode = (process.env.NEXT_PUBLIC_LANG_MODE as Mode) ?? "local";
 
     return {
@@ -52,22 +55,35 @@ export const useLangStore = create<LangState>(((set, get) => {
                         isLoading: false,
                     });
                 } else if (mode === "apiSingle") {
-                    const res = await fetch(`/api/lang/${langCode}`);
+                    if (!API_BASE) {
+                        throw new Error("NEXT_PUBLIC_LANG_API_BASE not configured");
+                    }
+
+                    const res = await fetch(`${API_BASE}/lang/${langCode}.json`);
                     if (!res.ok) throw new Error(`API error: ${res.statusText}`);
-                    const lang = (await res.json()) as Language;
+
+                    const data = await res.json();
+                    const lang = data.language as Language;
+
                     set({
                         activeLang: lang,
                         languages: { ...get().languages, [langCode]: lang },
                         isLoading: false,
                     });
                 } else if (mode === "apiAll") {
-                    const res = await fetch(`/api/langs`);
+                    if (!API_BASE) {
+                        throw new Error("NEXT_PUBLIC_LANG_API_BASE not configured");
+                    }
+
+                    const res = await fetch(`${API_BASE}/langs.json`);
                     if (!res.ok) throw new Error(`API error: ${res.statusText}`);
-                    const langs = (await res.json()) as (Language & { code: string })[];
+
+                    const data = (await res.json()) as { language: Language }[];
 
                     const langMap: Record<string, Language> = {};
-                    langs.forEach((l) => {
-                        langMap[l.isocode] = l;
+
+                    data.forEach(({ language }) => {
+                        langMap[language.isocode] = language;
                     });
 
                     set({
@@ -76,14 +92,20 @@ export const useLangStore = create<LangState>(((set, get) => {
                         isLoading: false,
                     });
                 }
-            } catch (err: any) {
-                set({ error: err.message, isLoading: false });
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Unknown error";
+
+                set({ error: message, isLoading: false });
             }
         },
 
         findPageByPath: (path) => {
             const { activeLang } = get();
-            return activeLang?.routes.find((r) => r.url === path);
+            if (!activeLang) return undefined;
+
+            const normalisedPath = path !== "/" && path.endsWith("/") ? path.slice(0, -1) : path;
+
+            return activeLang.routes?.find((r) => r.url === normalisedPath);
         },
 
         i18nR: (path, key) => {
@@ -95,16 +117,14 @@ export const useLangStore = create<LangState>(((set, get) => {
 
         i18nUI: (key) => {
             const { activeLang } = get();
-            const field = activeLang?.ui.find((f) => f.key === key);
+            const field = activeLang?.ui?.find((f) => f.key === key);
 
             if (!field) return "TEXT NOT FOUND";
 
-            // only return .Text if this is a "normal case"
             if ("Text" in field) {
                 return field.Text;
             }
 
-            // if it's the lang_options field, decide what to return
             return "TEXT NOT FOUND";
         },
     };

@@ -17,6 +17,8 @@ export default function ScormWrapper({ children }: Props) {
         return () => {
             scorm.scormTerminate();
         };
+        // scorm is a stable store reference; lifecycle should run once
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return <>{children}</>;

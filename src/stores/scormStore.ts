@@ -21,33 +21,6 @@ export const useScormStore = create<ScormState>((set, get) => ({
     scormInited: { success: false, version: "" },
     suspendData: null,
     location: null,
-    interactions: [
-        {
-            interactionID: "0",
-            questionRef: "q1",
-            questionText: "What is 2 + 2?",
-            questionType: "numeric",
-            learnerResponse: "",
-            correctAnswer: "4",
-            wasCorrect: null,
-            objectiveId: "obj1",
-        },
-        {
-            interactionID: "1",
-            questionRef: "q2",
-            questionText: "Pick a fruit",
-            questionType: "choice",
-            questionOptions: [
-                { option: "Apple", key: "1" },
-                { option: "Banana", key: "2" },
-                { option: "Orange", key: "3" },
-            ],
-            learnerResponse: "",
-            correctAnswer: "2",
-            wasCorrect: null,
-            objectiveId: "obj2",
-        },
-    ],
 
     // ---------- Actions ----------
     scormConnect: () => {
@@ -57,10 +30,9 @@ export const useScormStore = create<ScormState>((set, get) => ({
             debugLog("info", "scorm", "SCORM already connected");
             return;
         }
-        console.log("---SCORM connect---");
         debugLog("info", "scorm", "SCORM connect attempted");
 
-        state.API.configure({ version: "2004", debug: true });
+        state.API.configure({ version: "1.2", debug: true });
         const result = state.API.initialize();
         set({
             scormInited: result,
@@ -81,9 +53,12 @@ export const useScormStore = create<ScormState>((set, get) => ({
 
         const currentStatus = result.version === "1.2" ? state.API.get("cmi.core.lesson_status") : state.API.get("cmi.completion_status");
 
-        if (result.success && !["completed", "passed"].includes(currentStatus?.toLowerCase())) {
+        const normalizedStatus = currentStatus?.toLowerCase() ?? "";
+
+        if (result.success && !["completed", "passed"].includes(normalizedStatus)) {
             console.log("mark course incomplete");
             debugLog("info", "scorm", "Marking SCORM incomplete");
+
             if (result.version === "1.2") {
                 state.API.set("cmi.core.lesson_status", "incomplete");
             } else {
@@ -257,111 +232,6 @@ export const useScormStore = create<ScormState>((set, get) => ({
             }
             state.API.commit();
         }
-    },
-
-    scormInitObjectives: () => {
-        const state = get();
-        state.reconnectAttemptIfNeeded();
-        if (state.scormAPIConnected) {
-            state.API.set("cmi.objectives.0.id", "objective_1");
-            state.API.commit();
-            console.log("SCORM objectives initialized");
-            debugLog("info", "scorm", "SCORM objectives initialised");
-        } else {
-            console.warn("SCORM not connected, cannot initialize objectives");
-            debugLog("warn", "scorm", "Attempted initObjectives while SCORM disconnected");
-        }
-    },
-
-    scormSetObjectiveScore: (index: number, score: number) => {
-        const state = get();
-        state.reconnectAttemptIfNeeded();
-        if (state.scormAPIConnected) {
-            const basePath = `cmi.objectives.${index}.score.raw`;
-            state.API.set(basePath, score.toString());
-            state.API.commit();
-            console.log(`SCORM objective ${index} score set to ${score}`);
-            debugLog("info", "scorm", "SCORM objective score set", {
-                index,
-                score,
-            });
-        } else {
-            console.warn("SCORM not connected, cannot set objective score");
-            debugLog("warn", "scorm", "Attempted setObjectiveScore while SCORM disconnected", {
-                index,
-            });
-        }
-    },
-
-    scormSetObjectiveProgress: (index: number, progress: number) => {
-        const state = get();
-        state.reconnectAttemptIfNeeded();
-        if (state.scormAPIConnected) {
-            const basePath = `cmi.objectives.${index}.progress_measure`;
-            const value = (progress / 100).toFixed(2);
-            state.API.set(basePath, value);
-            state.API.commit();
-            console.log(`SCORM objective ${index} progress set to ${value}`);
-            debugLog("info", "scorm", "SCORM objective progress set", {
-                index,
-                progress,
-            });
-        } else {
-            console.warn("SCORM not connected, cannot set objective progress");
-            debugLog("warn", "scorm", "Attempted setObjectiveProgress while SCORM disconnected", {
-                index,
-            });
-        }
-    },
-
-    setInteraction: ({ interaction, learnerResponse }) => {
-        const state = get();
-        const current = state.interactions[interaction];
-        if (!current) return;
-        current.learnerResponse = learnerResponse;
-        current.wasCorrect = learnerResponse === current.correctAnswer;
-        set({ interactions: [...state.interactions] });
-        debugLog("info", "scorm", "Interaction updated locally", {
-            interaction,
-            learnerResponse,
-        });
-    },
-
-    recordScormQuestion: (questionRef, questionType, learnerResponse, correctAnswer, wasCorrect, objectiveId, interactionID) => {
-        const state = get();
-        if (!state.scormAPIConnected) {
-            console.warn("SCORM not connected — skipping interaction log");
-            debugLog("warn", "scorm", "Attempted recordScormQuestion while SCORM disconnected", {
-                questionRef,
-            });
-            return;
-        }
-        const index = interactionID;
-        const now = new Date();
-        const scormTimestamp = now.toISOString().split(".")[0];
-        const resultIncorrect = state.version === "1.2" ? "wrong" : "incorrect";
-
-        state.API.set(`cmi.interactions.${index}.id`, questionRef);
-        state.API.set(`cmi.interactions.${index}.type`, questionType);
-
-        if (state.version === "1.2") {
-            state.API.set(`cmi.interactions.${index}.student_response`, learnerResponse);
-        } else {
-            state.API.set(`cmi.interactions.${index}.learner_response`, learnerResponse);
-            state.API.set(`cmi.interactions.${index}.timestamp`, scormTimestamp);
-        }
-
-        state.API.set(`cmi.interactions.${index}.correct_responses.0.pattern`, correctAnswer);
-        state.API.set(`cmi.interactions.${index}.result`, wasCorrect ? "correct" : resultIncorrect);
-        state.API.set(`cmi.interactions.${index}.objectives.0.id`, objectiveId);
-
-        state.API.commit();
-        console.log(`Interaction ${index} sent to LMS`);
-        debugLog("info", "scorm", "SCORM interaction recorded", {
-            interactionID,
-            questionRef,
-            wasCorrect,
-        });
     },
 
     reconnectAttemptIfNeeded: () => {

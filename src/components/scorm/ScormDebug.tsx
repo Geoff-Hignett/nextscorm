@@ -48,24 +48,6 @@ export default function ScormDebug() {
                     Quit
                 </button>
             </div>
-
-            {/* --- Objectives --- */}
-            <div className="flex items-center mb-4 gap-2">
-                <h2 className="font-bold text-xl">SCORM Objectives</h2>
-            </div>
-            <div className="flex flex-wrap gap-2 mb-5">
-                <button onClick={scorm.scormInitObjectives} className="bg-sky-500 text-white text-lg px-4 py-2 rounded">
-                    Init Objectives
-                </button>
-                <button onClick={() => scorm.scormSetObjectiveScore(0, 50)} className="bg-sky-500 text-white text-lg px-4 py-2 rounded">
-                    Set Objective 1 Score 50
-                </button>
-                {scorm.version === "2004" && (
-                    <button onClick={() => scorm.scormSetObjectiveProgress(0, 50)} className="bg-sky-500 text-white text-lg px-4 py-2 rounded">
-                        Set Objective 1 Progress 50%
-                    </button>
-                )}
-            </div>
         </div>
     );
 }
